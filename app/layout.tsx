@@ -1,17 +1,23 @@
-import './globals.css' // 반드시 이 줄이 최상단에 있어야 함
-
-export const metadata = {
-  title: 'iMessage AI',
-  description: 'iPhone Style Chat',
-}
+'use client';
+import { useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import './globals.css';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const autoLogin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      // 세션이 없으면 익명으로 바로 로그인 시킴
+      if (!session) {
+        await supabase.auth.signInAnonymously();
+      }
+    };
+    autoLogin();
+  }, []);
+
   return (
     <html lang="ko">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
-      </head>
-      <body>{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
-  )
+  );
 }
