@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Send } from 'lucide-react';
+import { ChevronLeft, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ChatPage() {
@@ -41,25 +41,29 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto bg-[#F2F2F7] border-x shadow-2xl relative">
-      {/* 헤더: 캐릭터 이름 강조 */}
-      <header className="p-4 bg-white/80 backdrop-blur-md border-b sticky top-0 z-10 flex items-center justify-between">
-        <Link href="/"><ChevronLeft className="text-gray-600" /></Link>
-        <div className="text-lg font-extrabold text-gray-800">{profile?.character_name || "대화 중..."}</div>
-        <Link href="/settings" className="text-xs text-gray-400">설정</Link>
+    <div className="flex flex-col h-screen max-w-md mx-auto bg-white border-x shadow-2xl font-sans tracking-tight">
+      {/* 아이메시지 상단바 */}
+      <header className="p-2 pt-10 bg-white/90 backdrop-blur-md border-b flex flex-col items-center sticky top-0 z-20">
+        <div className="w-full flex justify-between px-2 items-center">
+          <Link href="/"><ChevronLeft className="text-[#007AFF]" size={32} /></Link>
+          <div className="flex flex-col items-center">
+            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold mb-1">
+              {profile?.character_name?.[0] || 'C'}
+            </div>
+            <span className="text-[11px] font-semibold text-gray-800">{profile?.character_name || "캐릭터"} 〉</span>
+          </div>
+          <MoreHorizontal className="text-[#007AFF]" size={24} />
+        </div>
       </header>
 
-      {/* 메시지 영역 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+      {/* 대화 영역 */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-1">
         {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.is_from_user ? 'justify-end' : 'justify-start'}`}>
-            {!m.is_from_user && (
-              <div className="w-8 h-8 rounded-full bg-gray-300 mr-2 flex-shrink-0 flex items-center justify-center text-[10px] text-white">
-                {profile?.character_name?.[0]}
-              </div>
-            )}
-            <div className={`p-3 rounded-2xl text-[15px] max-w-[75%] shadow-sm leading-relaxed ${
-              m.is_from_user ? 'bg-[#34C759] text-white rounded-tr-none' : 'bg-white text-black border border-gray-100 rounded-tl-none'
+          <div key={i} className={`flex flex-col ${m.is_from_user ? 'items-end' : 'items-start'} mb-2`}>
+            <div className={`px-4 py-2 rounded-[20px] text-[15px] max-w-[75%] leading-tight ${
+              m.is_from_user 
+                ? 'bg-[#007AFF] text-white rounded-br-[4px]' 
+                : 'bg-[#E9E9EB] text-black rounded-bl-[4px]'
             }`}>
               {m.content}
             </div>
@@ -68,18 +72,23 @@ export default function ChatPage() {
         <div ref={scrollRef} />
       </div>
 
-      {/* 입력창: 하단 고정 및 라운드 디자인 */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-sm border-t flex gap-2 items-center">
-        <input 
-          className="flex-1 border-none bg-gray-100 rounded-2xl px-4 py-3 text-[15px] outline-none focus:ring-1 ring-green-400 transition-all" 
-          value={input} 
-          onChange={e => setInput(e.target.value)} 
-          onKeyDown={e => e.key === 'Enter' && send()}
-          placeholder={`${profile?.character_name || '캐릭터'}에게 메시지 보내기...`} 
-        />
-        <button onClick={send} className="bg-[#34C759] text-white p-3 rounded-2xl shadow-md active:scale-95 transition-transform">
-          <Send size={20} />
-        </button>
+      {/* 아이폰 하단 입력바 */}
+      <div className="p-3 bg-white border-t flex items-center gap-2 pb-10">
+        <div className="flex-1 bg-[#F2F2F7] border border-gray-200 rounded-full px-4 py-2 flex items-center">
+          <input 
+            className="flex-1 bg-transparent outline-none text-[15px] text-black" 
+            value={input} 
+            onChange={e => setInput(e.target.value)} 
+            onKeyDown={e => e.key === 'Enter' && send()}
+            placeholder="iMessage" 
+          />
+          <button 
+            onClick={send} 
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${input ? 'bg-[#34C759]' : 'bg-gray-300'}`}
+          >
+            <span className="text-white font-bold">↑</span>
+          </button>
+        </div>
       </div>
     </div>
   );
