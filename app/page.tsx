@@ -32,7 +32,7 @@ export default function MessageListPage() {
 
   return (
     <div className="flex flex-col h-screen max-w-md mx-auto bg-white font-sans overflow-hidden">
-      {/* 1. 상단 헤더: 기존 UI 복구 */}
+      {/* 1. 상단 헤더: 순정 UI 복구 */}
       <header className="px-4 pt-12 pb-2 flex justify-between items-center bg-white sticky top-0 z-[100]">
         <button 
           onClick={() => router.push('/settings')} 
@@ -48,7 +48,7 @@ export default function MessageListPage() {
             <MoreHorizontal size={20} />
           </button>
 
-          {/* 팝업 메뉴: 클릭 간섭 차단을 위해 z-index 최대로 설정 */}
+          {/* 팝업 메뉴: 사진첩과 알람 설정(선톡)을 이 안으로 숨김 */}
           {isMenuOpen && (
             <>
               <div className="fixed inset-0 z-[110]" onClick={() => setIsMenuOpen(false)} />
@@ -57,14 +57,14 @@ export default function MessageListPage() {
                   onClick={() => router.push('/gallery')}
                   className="w-full px-4 py-3.5 flex items-center justify-between active:bg-gray-100 border-b border-gray-100"
                 >
-                  <span className="text-[16px] text-black">사진첩</span>
+                  <span className="text-[16px] text-black font-medium">사진첩</span>
                   <ImageIcon size={18} className="text-gray-400" />
                 </button>
                 <button 
                   onClick={() => router.push('/timeline')}
                   className="w-full px-4 py-3.5 flex items-center justify-between active:bg-gray-100"
                 >
-                  <span className="text-[16px] text-black">타임라인</span>
+                  <span className="text-[16px] text-black font-medium">알람 설정</span>
                   <Clock size={18} className="text-gray-400" />
                 </button>
               </div>
@@ -73,16 +73,16 @@ export default function MessageListPage() {
         </div>
       </header>
 
-      {/* 2. 제목 및 검색바: 기존 레이아웃 복구 */}
+      {/* 2. 제목 및 검색바 */}
       <div className="px-4 pb-4 bg-white">
         <h1 className="text-[34px] font-bold tracking-tight mb-2 text-black">메시지</h1>
         <div className="relative flex items-center bg-[#E9E9EB] rounded-lg px-2 py-1.5">
-          <Search size={18} className="text-gray-500 mr-1.5" />
-          <input className="bg-transparent outline-none text-[17px] w-full text-black" placeholder="검색" />
+          <Search size={18} className="text-[#8E8E93] mr-1.5" />
+          <input className="bg-transparent outline-none text-[17px] w-full text-black placeholder-[#8E8E93]" placeholder="검색" />
         </div>
       </div>
 
-      {/* 3. 리스트: 사용자님의 원래 디자인 */}
+      {/* 3. 대화 리스트: 군더더기 없이 복구 */}
       <main className="flex-1 overflow-y-auto">
         <div 
           onClick={() => router.push('/chat')} 
@@ -97,7 +97,7 @@ export default function MessageListPage() {
               </div>
             )}
           </div>
-          <div className="ml-3 flex-1 border-b border-gray-100 pb-3">
+          <div className="ml-3 flex-1 border-b border-gray-100 pb-3 group-last:border-none">
             <div className="flex justify-between items-baseline mb-0.5">
               <span className="font-bold text-[16px] text-black">{profile?.character_name || '대화 상대'}</span>
               <span className="text-[13px] text-gray-500">
@@ -108,17 +108,17 @@ export default function MessageListPage() {
               <p className="text-[14px] text-gray-500 line-clamp-2 leading-snug pr-4">
                 {lastMessage?.content || '새로운 대화를 시작해보세요.'}
               </p>
-              <ChevronRight size={16} className="text-gray-300 shrink-0" />
+              <ChevronRight size={16} className="text-[#C7C7CC] shrink-0" />
             </div>
           </div>
         </div>
       </main>
 
-      {/* 4. 플로팅 버튼: 기존 위치 유지 */}
+      {/* 4. 하단 플로팅 버튼 */}
       <div className="p-4 flex justify-end sticky bottom-0 pointer-events-none">
         <button 
           onClick={() => router.push('/chat')} 
-          className="pointer-events-auto w-12 h-12 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-[#007AFF] active:scale-95"
+          className="pointer-events-auto w-12 h-12 bg-white rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.1)] border border-gray-100 flex items-center justify-center text-[#007AFF] active:scale-95 transition-transform"
         >
           <SquarePen size={24} />
         </button>
