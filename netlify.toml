@@ -4,12 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  NPM_FLAGS = "--version"
+  NPM_FLAGS = "--include=dev"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
