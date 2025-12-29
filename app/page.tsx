@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Search, MoreHorizontal, Image as ImageIcon, Clock, SquarePen, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-// lib/supabase.ts를 참조하지 않고 직접 정의하여 에러 원천 차단
+// 외부 파일을 불러오지 않고 직접 설정하여 경로 에러 방지
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -53,7 +53,7 @@ export default function MessageListPage() {
         </div>
       </header>
       <div className="px-4 pb-4 bg-white">
-        <h1 className="text-[34px] font-bold tracking-tight mb-2 text-black font-sans">메시지</h1>
+        <h1 className="text-[34px] font-bold tracking-tight mb-2 text-black">메시지</h1>
         <div className="relative flex items-center bg-[#E9E9EB] rounded-lg px-2 py-1.5">
           <Search size={18} className="text-[#8E8E93] mr-1.5" />
           <input className="bg-transparent outline-none text-[17px] w-full text-black placeholder-[#8E8E93]" placeholder="검색" />
