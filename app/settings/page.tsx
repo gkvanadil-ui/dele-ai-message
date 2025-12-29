@@ -18,7 +18,7 @@ export default function SettingsPage() {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data } = await supabase.from('profiles').select('*').eq( 'id', user.id).single();
+      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
       if (data) setProfile({
         character_name: data.character_name || '',
         user_name: data.user_name || '',
@@ -45,7 +45,6 @@ export default function SettingsPage() {
         <span style={{ fontWeight: 'bold', fontSize: '17px' }}>설정</span>
         <button onClick={save} style={{ color: '#007AFF', fontWeight: 'bold', fontSize: '17px', background: 'none', border: 'none' }}>완료</button>
       </header>
-
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
           <div onClick={() => fileInputRef.current?.click()} style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: '#E3E3E8', margin: '0 auto 12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
@@ -63,21 +62,19 @@ export default function SettingsPage() {
              }
           }} />
         </div>
-
         <div style={{ backgroundColor: 'white', borderRadius: '10px', overflow: 'hidden', border: '1px solid #D1D1D6' }}>
           <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #D1D1D6' }}>
-            <span style={{ fontSize: '15px' }}>내 이름</span>
+            <span>내 이름</span>
             <input style={{ textAlign: 'right', border: 'none', outline: 'none', color: '#8E8E93' }} value={profile.user_name} onChange={e => setProfile({...profile, user_name: e.target.value})} />
           </div>
           <div style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '15px' }}>상대 이름</span>
+            <span>상대 이름</span>
             <input style={{ textAlign: 'right', border: 'none', outline: 'none', color: '#8E8E93' }} value={profile.character_name} onChange={e => setProfile({...profile, character_name: e.target.value})} />
           </div>
         </div>
-
         <div style={{ marginTop: '24px' }}>
           <span style={{ fontSize: '13px', color: '#8E8E93', textTransform: 'uppercase', marginLeft: '12px' }}>페르소나 (프롬프트)</span>
-          <textarea style={{ width: '100%', height: '180px', backgroundColor: 'white', borderRadius: '10px', padding: '16px', border: '1px solid #D1D1D6', marginTop: '8px', outline: 'none', fontSize: '15px', boxSizing: 'border-box' }} value={profile.system_prompt} onChange={e => setProfile({...profile, system_prompt: e.target.value})} placeholder="말투와 성격을 적어주세요." />
+          <textarea style={{ width: '100%', height: '180px', backgroundColor: 'white', borderRadius: '10px', padding: '16px', border: '1px solid #D1D1D6', marginTop: '8px', outline: 'none', fontSize: '15px', boxSizing: 'border-box' }} value={profile.system_prompt} onChange={e => setProfile({...profile, system_prompt: e.target.value})} placeholder="성격을 적어주세요." />
         </div>
       </div>
     </div>
