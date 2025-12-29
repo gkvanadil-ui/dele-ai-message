@@ -48,7 +48,7 @@ export default function SettingsPage() {
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
           <div onClick={() => fileInputRef.current?.click()} style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: '#E3E3E8', margin: '0 auto 12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            {profile.avatar_url ? <img src={profile.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Camera size={40} style={{ color: 'white' }} />}
+            {profile.avatar_url ? <img src={profile.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="avatar" /> : <Camera size={40} style={{ color: 'white' }} />}
           </div>
           <button onClick={() => fileInputRef.current?.click()} style={{ color: '#007AFF', fontSize: '15px', background: 'none', border: 'none' }}>사진 수정</button>
           <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" onChange={async (e) => {
@@ -74,7 +74,7 @@ export default function SettingsPage() {
         </div>
         <div style={{ marginTop: '24px' }}>
           <span style={{ fontSize: '13px', color: '#8E8E93', textTransform: 'uppercase', marginLeft: '12px' }}>페르소나 (프롬프트)</span>
-          <textarea style={{ width: '100%', height: '180px', backgroundColor: 'white', borderRadius: '10px', padding: '16px', border: '1px solid #D1D1D6', marginTop: '8px', outline: 'none', fontSize: '15px', boxSizing: 'border-box' }} value={profile.system_prompt} onChange={e => setProfile({...profile, system_prompt: e.target.value})} placeholder="성격을 적어주세요." />
+          <textarea style={{ width: '100%', height: '180px', backgroundColor: 'white', borderRadius: '10px', padding: '16px', border: '1px solid #D1D1D6', marginTop: '8px', outline: 'none', fontSize: '15px', boxSizing: 'border-box' }} value={profile.system_prompt} onChange={e => setProfile({...profile, system_prompt: e.target.value})} placeholder="말투와 성격을 적어주세요." />
         </div>
       </div>
     </div>
