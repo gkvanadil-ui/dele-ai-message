@@ -27,8 +27,9 @@ export default function SettingsPage() {
     if (data) setProfile(data);
   };
 
-  // 사진 수정 클릭 시 파일 선택창 강제 호출
-  const handlePhotoEditClick = () => {
+  // 사진 수정 클릭 시 파일 선택창 강제 호출 (이벤트 전파 보장)
+  const handlePhotoEditClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -78,24 +79,25 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto bg-[#F2F2F7] font-sans text-black">
-      {/* 헤더 영역 */}
+    <div className="flex flex-col h-screen max-w-md mx-auto bg-[#F2F2F7] font-sans text-black overflow-hidden">
+      {/* 1. 헤더: 목록 가기 및 완료 버튼 (고정 UI) */}
       <header className="px-4 pt-12 pb-4 flex justify-between items-center bg-white border-b sticky top-0 z-[100]">
-        <button onClick={() => router.push('/')} className="text-[#007AFF] flex items-center text-[17px]">
+        <button onClick={() => router.push('/')} className="text-[#007AFF] flex items-center text-[17px] active:opacity-50">
           <ChevronLeft /> 목록
         </button>
         <span className="font-bold text-[17px]">설정</span>
-        <button onClick={saveProfile} disabled={loading} className="text-[#007AFF] font-bold text-[17px]">
+        <button onClick={saveProfile} disabled={loading} className="text-[#007AFF] font-bold text-[17px] active:opacity-50">
           {loading ? '...' : '완료'}
         </button>
       </header>
 
+      {/* 2. 본문 영역 */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {/* 프로필 사진 섹션: 클릭 이벤트 확실히 부여 */}
+        {/* 프로필 사진 수정 섹션: 클릭이 안 되는 문제를 해결하기 위해 최상단 z-index 부여 */}
         <div className="flex flex-col items-center py-6">
           <div 
             onClick={handlePhotoEditClick}
-            className="w-24 h-24 rounded-full bg-[#E3E3E8] overflow-hidden mb-3 flex items-center justify-center cursor-pointer border border-gray-200 active:opacity-70"
+            className="w-24 h-24 rounded-full bg-[#E3E3E8] overflow-hidden mb-3 flex items-center justify-center cursor-pointer border border-gray-200 active:opacity-70 relative z-20"
           >
             {profile.avatar_url ? (
               <img src={profile.avatar_url} className="w-full h-full object-cover" alt="avatar" />
@@ -104,8 +106,9 @@ export default function SettingsPage() {
             )}
           </div>
           <button 
+            type="button"
             onClick={handlePhotoEditClick} 
-            className="text-[#007AFF] text-[15px] font-medium active:opacity-50"
+            className="text-[#007AFF] text-[15px] font-medium active:opacity-50 relative z-20"
           >
             사진 수정
           </button>
@@ -118,10 +121,10 @@ export default function SettingsPage() {
           />
         </div>
 
-        {/* 이름 설정 섹션 */}
+        {/* 이름 설정 섹션 (순정 레이아웃) */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-100 overflow-hidden">
-          <div className="px-4 py-3 flex items-center justify-between">
-            <span className="text-[15px] font-medium">내 이름</span>
+          <div className="px-4 py-3 flex items-center justify-between bg-white">
+            <span className="text-[15px] font-medium min-w-[80px]">내 이름</span>
             <input 
               className="text-right outline-none text-[15px] text-gray-500 bg-transparent flex-1"
               value={profile.user_name}
@@ -129,8 +132,8 @@ export default function SettingsPage() {
               placeholder="본인 이름"
             />
           </div>
-          <div className="px-4 py-3 flex items-center justify-between">
-            <span className="text-[15px] font-medium">상대 이름</span>
+          <div className="px-4 py-3 flex items-center justify-between bg-white">
+            <span className="text-[15px] font-medium min-w-[80px]">상대 이름</span>
             <input 
               className="text-right outline-none text-[15px] text-gray-500 bg-transparent flex-1"
               value={profile.character_name}
@@ -140,7 +143,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* 프롬프트 입력칸: 명확하게 복구 */}
+        {/* 페르소나 (프롬프트) 입력칸 복구: 삭제하지 말고 유지하는 1순위 조건 반영 */}
         <div className="space-y-2 px-1">
           <span className="text-[13px] text-gray-500 uppercase font-medium ml-3">페르소나 (프롬프트)</span>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -148,7 +151,7 @@ export default function SettingsPage() {
               className="w-full h-48 outline-none text-[15px] text-black resize-none bg-transparent"
               value={profile.system_prompt}
               onChange={(e) => setProfile({...profile, system_prompt: e.target.value})}
-              placeholder="AI 캐릭터의 말투와 성격을 적어주세요."
+              placeholder="AI 캐릭터의 말투와 성격을 여기에 적으세요."
             />
           </div>
         </div>
