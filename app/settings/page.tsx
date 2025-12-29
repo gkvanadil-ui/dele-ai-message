@@ -1,8 +1,12 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { ChevronLeft, Camera } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -52,14 +56,14 @@ export default function SettingsPage() {
             setLoading(false);
           }} accept="image/*" />
         </div>
-        <div className="bg-white rounded-xl shadow-sm border divide-y overflow-hidden border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y overflow-hidden">
           <div className="px-4 py-3 flex justify-between"><span>내 이름</span><input className="text-right outline-none text-gray-500 bg-transparent" value={profile.user_name} onChange={(e) => setProfile({...profile, user_name: e.target.value})} /></div>
           <div className="px-4 py-3 flex justify-between"><span>상대 이름</span><input className="text-right outline-none text-gray-500 bg-transparent" value={profile.character_name} onChange={(e) => setProfile({...profile, character_name: e.target.value})} /></div>
         </div>
         <div className="space-y-2 px-1">
           <span className="text-[13px] text-gray-500 uppercase font-medium ml-3">페르소나 (프롬프트)</span>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <textarea className="w-full h-48 outline-none text-[15px] text-black resize-none bg-transparent" value={profile.system_prompt} onChange={(e) => setProfile({...profile, system_prompt: e.target.value})} placeholder="캐릭터 말투 적기..." />
+            <textarea className="w-full h-48 outline-none text-[15px] text-black resize-none bg-transparent" value={profile.system_prompt} onChange={(e) => setProfile({...profile, system_prompt: e.target.value})} placeholder="말투 적기..." />
           </div>
         </div>
       </div>
