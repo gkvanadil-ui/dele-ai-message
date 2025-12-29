@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null); // 사진 수정을 위한 ref
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState({
     character_name: '',
     user_name: '',
@@ -26,12 +26,10 @@ export default function SettingsPage() {
     if (data) setProfile(data);
   };
 
-  // 사진 수정 버튼 클릭 시 실행
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
 
-  // 실제 사진 업로드 로직
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -50,7 +48,7 @@ export default function SettingsPage() {
       const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
       
       setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
-      alert("사진이 임시 반영되었습니다. 완료를 눌러 저장하세요.");
+      alert("사진이 반영되었습니다. 완료를 눌러 저장하세요.");
     } catch (err: any) {
       alert("업로드 실패: " + err.message);
     } finally {
@@ -83,7 +81,7 @@ export default function SettingsPage() {
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {/* 프로필 사진 섹션: 사진수정 버튼 클릭 영역 보장 */}
+        {/* 프로필 사진: 카메라 아이콘과 '사진 수정' 텍스트 모두 클릭 가능 */}
         <div className="flex flex-col items-center py-6">
           <div 
             onClick={triggerFileInput}
@@ -108,26 +106,26 @@ export default function SettingsPage() {
         {/* 이름 설정 섹션 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-100 overflow-hidden">
           <div className="px-4 py-3 flex items-center justify-between">
-            <span className="text-[15px] text-gray-800 font-medium">내 이름</span>
+            <span className="text-[15px] text-black">내 이름</span>
             <input 
               className="text-right outline-none text-[15px] text-gray-500 bg-transparent"
               value={profile.user_name}
               onChange={(e) => setProfile({...profile, user_name: e.target.value})}
-              placeholder="엄마"
+              placeholder="본인 이름"
             />
           </div>
           <div className="px-4 py-3 flex items-center justify-between">
-            <span className="text-[15px] text-gray-800 font-medium">상대 이름</span>
+            <span className="text-[15px] text-black">상대 이름</span>
             <input 
               className="text-right outline-none text-[15px] text-gray-500 bg-transparent"
               value={profile.character_name}
               onChange={(e) => setProfile({...profile, character_name: e.target.value})}
-              placeholder="츠무기"
+              placeholder="캐릭터 이름"
             />
           </div>
         </div>
 
-        {/* 프롬프트 섹션: 복구 완료 */}
+        {/* 페르소나 (프롬프트) 입력칸 복구 */}
         <div className="space-y-2">
           <span className="px-4 text-[13px] text-gray-500 uppercase font-medium">페르소나 (프롬프트)</span>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -135,16 +133,14 @@ export default function SettingsPage() {
               className="w-full h-48 outline-none text-[15px] text-black resize-none bg-transparent"
               value={profile.system_prompt}
               onChange={(e) => setProfile({...profile, system_prompt: e.target.value})}
-              placeholder="여기에 캐릭터의 성격이나 말투를 적으세요."
+              placeholder="캐릭터의 성격이나 말투를 상세히 적으세요."
             />
           </div>
         </div>
 
         {/* API 키 섹션 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-2">
-          <div className="text-[13px] text-gray-500 uppercase font-medium flex items-center gap-1">
-            <span>OpenAI API Key</span>
-          </div>
+          <div className="text-[13px] text-gray-500 uppercase font-medium">OpenAI API Key</div>
           <input 
             type="password"
             className="w-full bg-[#F2F2F7] p-3 rounded-lg text-sm outline-none text-black"
