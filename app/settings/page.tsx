@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { ChevronLeft, Camera } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+// lib/supabase.ts를 참조하지 않고 직접 정의
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
