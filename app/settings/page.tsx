@@ -1,104 +1,90 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Camera, Image as ImageIcon, Clock, ChevronRight, Key } from 'lucide-react';
-import Link from 'next/link';
+import { ChevronLeft, Camera } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ 
-    user_name: '', character_name: '', system_prompt: '', avatar_url: '', openai_api_key: '' 
+  const [profile, setProfile] = useState({
+    character_name: '',
+    user_name: '',
+    system_prompt: '',
+    avatar_url: '',
+    openai_api_key: ''
   });
 
   useEffect(() => {
-    const loadData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-      if (data) setForm(data);
-    };
-    loadData();
+    loadProfile();
   }, []);
 
-  const save = async () => {
+  const loadProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    if (data) setProfile(data);
+  };
+
+  const handlePhotoEditClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
     setLoading(true);
-    let { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      const { data: { user: newUser } } = await supabase.auth.signInAnonymously();
-      user = newUser;
-    }
-    const { error } = await supabase.from('profiles').upsert({ id: user?.id, ...form });
-    if (error) alert("저장 실패: " + error.message);
-    else alert("설정 완료!");
+    const { data: { user } } = await supabase.auth.getUser();
+    const filePath = `${user?.id}/avatar_${Date.now()}`;
+    await supabase.storage.from('photos').upload(filePath, file);
+    const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+    setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+    alert("반영되었습니다. 상단 완료를 눌러주세요.");
+    setLoading(false);
+  };
+
+  const saveProfile = async () => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('profiles').upsert({ id: user?.id, ...profile });
+    alert("저장되었습니다.");
+    router.push('/'); // 확실히 목록으로 이동
     setLoading(false);
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto bg-[#F2F2F7] font-sans">
+    <div className="flex flex-col h-screen max-w-md mx-auto bg-[#F2F2F7] font-sans text-black">
       <header className="px-4 pt-12 pb-4 flex justify-between items-center bg-white border-b sticky top-0 z-10">
-        <Link href="/" className="text-[#007AFF] flex items-center"><ChevronLeft /> 목록</Link>
-        <span className="font-bold">설정</span>
-        <button onClick={save} disabled={loading} className="text-[#007AFF] font-bold">
-          {loading ? '...' : '완료'}
+        <button onClick={() => router.push('/')} className="text-[#007AFF] flex items-center text-[17px]">
+          <ChevronLeft /> 목록
         </button>
+        <span className="font-bold text-[17px]">설정</span>
+        <button onClick={saveProfile} className="text-[#007AFF] font-bold text-[17px]">완료</button>
       </header>
-
-      <div className="p-4 space-y-6 overflow-y-auto">
-        {/* 프로필 이미지 */}
-        <div className="flex flex-col items-center py-4">
-          <div className="w-24 h-24 bg-gray-300 rounded-full overflow-hidden mb-2 shadow-inner flex items-center justify-center">
-            {form.avatar_url ? <img src={form.avatar_url} className="w-full h-full object-cover" /> : <Camera className="text-white" />}
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div className="flex flex-col items-center py-6">
+          <div onClick={handlePhotoEditClick} className="w-24 h-24 rounded-full bg-[#E3E3E8] overflow-hidden mb-3 border border-gray-200 cursor-pointer">
+            {profile.avatar_url ? <img src={profile.avatar_url} className="w-full h-full object-cover" /> : <Camera className="m-auto mt-6 text-white" size={40} />}
           </div>
-          <button className="text-[#007AFF] text-sm">사진 수정</button>
+          <button onClick={handlePhotoEditClick} className="text-[#007AFF] text-[15px]">사진 수정</button>
+          <input type="file" ref={fileInputRef} className="hidden" onChange={handleAvatarUpload} accept="image/*" />
         </div>
-
-        {/* 핵심 메뉴 섹션 (이게 안 눌렸던 부분입니다) */}
-        <div className="bg-white rounded-xl border border-gray-200 divide-y overflow-hidden">
-          <Link href="/gallery" className="p-4 flex items-center justify-between active:bg-gray-100 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 bg-blue-500 rounded-md flex items-center justify-center text-white">
-                <ImageIcon size={18} />
-              </div>
-              <span className="text-[16px]">사진첩 관리</span>
-            </div>
-            <ChevronRight size={18} className="text-gray-400" />
-          </Link>
-          <Link href="/timeline" className="p-4 flex items-center justify-between active:bg-gray-100 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 bg-green-500 rounded-md flex items-center justify-center text-white">
-                <Clock size={18} />
-              </div>
-              <span className="text-[16px]">선톡(타임라인) 설정</span>
-            </div>
-            <ChevronRight size={18} className="text-gray-400" />
-          </Link>
-        </div>
-
-        {/* 이름 설정 섹션 */}
-        <div className="bg-white rounded-xl border border-gray-200 divide-y">
-          <div className="p-4 flex items-center justify-between">
-            <span className="text-gray-500">내 이름</span>
-            <input className="text-right outline-none" value={form.user_name} onChange={e => setForm({...form, user_name: e.target.value})} placeholder="본인 이름" />
+        <div className="bg-white rounded-xl shadow-sm border divide-y overflow-hidden">
+          <div className="px-4 py-3 flex justify-between">
+            <span>내 이름</span>
+            <input className="text-right outline-none text-gray-500" value={profile.user_name} onChange={(e) => setProfile({...profile, user_name: e.target.value})} />
           </div>
-          <div className="p-4 flex items-center justify-between">
-            <span className="text-gray-500">상대 이름</span>
-            <input className="text-right outline-none" value={form.character_name} onChange={e => setForm({...form, character_name: e.target.value})} placeholder="상대 이름" />
+          <div className="px-4 py-3 flex justify-between">
+            <span>상대 이름</span>
+            <input className="text-right outline-none text-gray-500" value={profile.character_name} onChange={(e) => setProfile({...profile, character_name: e.target.value})} />
           </div>
         </div>
-
-        {/* API 키 */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-gray-500">
-            <Key size={16} />
-            <span className="text-xs font-bold uppercase">OpenAI API KEY</span>
+        <div className="space-y-2">
+          <span className="px-4 text-[13px] text-gray-500 uppercase">페르소나 (프롬프트)</span>
+          <div className="bg-white rounded-xl border p-4">
+            <textarea className="w-full h-48 outline-none text-[15px] resize-none" value={profile.system_prompt} onChange={(e) => setProfile({...profile, system_prompt: e.target.value})} placeholder="성격 입력..." />
           </div>
-          <input 
-            type="password"
-            className="w-full bg-gray-50 p-3 rounded-lg text-sm outline-none"
-            value={form.openai_api_key}
-            onChange={e => setForm({...form, openai_api_key: e.target.value})}
-            placeholder="sk-..."
-          />
         </div>
       </div>
     </div>
