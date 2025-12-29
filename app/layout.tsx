@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'AI Message',
-  description: 'Clean start version',
+  title: 'AI iMessage',
+  description: 'Clean Start',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
