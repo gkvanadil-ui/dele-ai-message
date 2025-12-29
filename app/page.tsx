@@ -25,13 +25,12 @@ export default function MessageListPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxWidth: '450px', margin: '0 auto', backgroundColor: 'white', color: 'black', overflow: 'hidden' }}>
-      <header style={{ padding: '48px 16px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 10 }}>
+      <header style={{ padding: '48px 16px 8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'white' }}>
         <button onClick={() => router.push('/settings')} style={{ color: '#007AFF', fontSize: '17px', background: 'none', border: 'none', cursor: 'pointer' }}>편집</button>
         <button style={{ width: '32px', height: '32px', backgroundColor: '#F2F2F7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', color: '#007AFF' }}>
           <MoreHorizontal size={20} />
         </button>
       </header>
-
       <div style={{ padding: '0 16px 16px' }}>
         <h1 style={{ fontSize: '34px', fontWeight: 'bold', margin: '0 0 8px' }}>메시지</h1>
         <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#E9E9EB', borderRadius: '10px', padding: '6px 10px' }}>
@@ -39,11 +38,10 @@ export default function MessageListPage() {
           <input style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: '17px', width: '100%' }} placeholder="검색" />
         </div>
       </div>
-
       <main style={{ flex: 1, overflowY: 'auto' }}>
         <div onClick={() => router.push('/chat')} style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #F2F2F7', cursor: 'pointer' }}>
           <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#E5E7EB', overflow: 'hidden', flexShrink: 0 }}>
-            {profile?.avatar_url && <img src={profile.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="pfp" />}
+            {profile?.avatar_url && <img src={profile.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
           </div>
           <div style={{ marginLeft: '12px', flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -54,7 +52,6 @@ export default function MessageListPage() {
           </div>
         </div>
       </main>
-
       <div style={{ padding: '16px', display: 'flex', justifyContent: 'flex-end', position: 'sticky', bottom: 0 }}>
         <button onClick={() => router.push('/chat')} style={{ width: '48px', height: '48px', backgroundColor: 'white', borderRadius: '50%', border: '1px solid #F2F2F7', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', color: '#007AFF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <SquarePen size={24} />
