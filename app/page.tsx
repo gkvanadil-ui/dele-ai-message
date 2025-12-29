@@ -69,7 +69,7 @@ export default function SettingsPage() {
       });
       if (error) throw error;
       alert("저장되었습니다.");
-      router.replace('/'); // 강제 새로고침 효과를 위해 replace 사용
+      router.push('/'); // 목록으로 정상 탈출
     } catch (err: any) {
       alert("저장 실패");
     } finally {
@@ -78,7 +78,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto bg-[#F2F2F7] font-sans text-black overflow-hidden relative z-[50]">
+    <div className="flex flex-col h-screen max-w-md mx-auto bg-[#F2F2F7] font-sans text-black overflow-hidden relative">
       {/* 1. 상단 헤더: 목록 가기 버튼 복구 */}
       <header className="px-4 pt-12 pb-4 flex justify-between items-center bg-white border-b sticky top-0 z-[60]">
         <button 
@@ -97,10 +97,10 @@ export default function SettingsPage() {
         </button>
       </header>
 
-      {/* 2. 본문 영역: 사진첩/알람설정 메뉴 삭제 유지 */}
+      {/* 2. 본문 영역 */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         
-        {/* 프로필 사진 수정: 최상단 레이어 보장 */}
+        {/* 프로필 사진 수정: 클릭 영역 확실히 보장 */}
         <div className="flex flex-col items-center py-6">
           <div 
             onClick={handlePhotoEditClick}
@@ -150,7 +150,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* 프롬프트 섹션: 복구 상태 유지 */}
+        {/* 프롬프트 섹션: 삭제 금지 조건 반영 */}
         <div className="space-y-2 px-1">
           <span className="text-[13px] text-gray-500 uppercase font-medium ml-3">페르소나 (프롬프트)</span>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
