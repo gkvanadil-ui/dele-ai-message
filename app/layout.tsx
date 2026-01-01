@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import './globals.css'; // globals.css가 없다면 이 줄을 지우세요.
+import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Chat App',
-  description: 'Next.js Supabase Chat',
+  description: 'Supabase Chat Application',
 };
 
 export default function RootLayout({
