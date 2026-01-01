@@ -1,8 +1,7 @@
-export interface Profile {
+export interface User {
   id: string;
-  username: string;
-  avatar_url?: string;
-  created_at?: string;
+  email?: string;
+  // 필요한 유저 필드 추가
 }
 
 export interface Message {
@@ -11,7 +10,6 @@ export interface Message {
   content: string;
   user_id: string;
   created_at: string;
-  image_url?: string;
 }
 
 export interface ChatRequest {
