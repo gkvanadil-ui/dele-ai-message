@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Cloudflare Pages 이미지 최적화 호환 설정
+  // Cloudflare Pages 이미지 최적화 비활성화 (필수)
   images: {
     unoptimized: true,
   },
-  // 빌드 중단 방지 (타입/린트 에러 무시)
+  // 타입/린트 에러로 인한 빌드 실패 방지
   typescript: {
     ignoreBuildErrors: true,
   },
