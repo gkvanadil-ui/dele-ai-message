@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Dele Chat',
-  description: 'Cloudflare Pages Deployment',
+  description: 'Next.js on Cloudflare Pages',
 };
 
 export default function RootLayout({
