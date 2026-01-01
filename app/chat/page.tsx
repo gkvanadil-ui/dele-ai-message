@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../utils/supabase';
-import type { Message } from '../types';
+import type { Message, User } from '../types';
 
-// UUID 생성 폴백
+// UUID 생성 (브라우저/서버 호환)
 const generateUUID = () => {
   if (
     typeof window !== 'undefined' &&
@@ -24,9 +24,8 @@ const generateUUID = () => {
 export default function ChatPage() {
   const router = useRouter();
   
-  // 상태 관리
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [user, setUser] = useState<any>(null);
+  // any 제거 -> 명시적 타입 사용
+  const [user, setUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -35,23 +34,27 @@ export default function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 1. 초기화
   useEffect(() => {
     const initialize = async () => {
       try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const { data, error: authError } = await supabase.auth.getUser();
 
-        if (authError || !user) {
+        if (authError || !data?.user) {
           router.replace('/');
           return;
         }
 
-        setUser(user);
+        // Supabase User 타입을 우리가 정의한 User 타입으로 매핑 (id 필수)
+        const currentUser: User = {
+          id: data.user.id,
+          email: data.user.email
+        };
+        setUser(currentUser);
 
         const { data: msgData, error: msgError } = await supabase
           .from('messages')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', data.user.id)
           .order('created_at', { ascending: true });
 
         if (msgError) throw msgError;
@@ -59,7 +62,8 @@ export default function ChatPage() {
         setMessages(msgData || []);
 
       } catch (error) {
-        console.error('Initialization error:', error);
+        // 빌드 중 no-console 에러 방지를 위해 필요시 주석 처리 가능하나, error는 허용되는 편
+        console.error('Init Error:', error);
       } finally {
         setIsLoading(false);
       }
@@ -68,12 +72,10 @@ export default function ChatPage() {
     initialize();
   }, [router]);
 
-  // 2. 스크롤 처리
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isSending]);
 
-  // 3. 메시지 전송
   const handleSendMessage = async () => {
     if (!inputText.trim() || isSending || !user) return;
 
@@ -84,7 +86,6 @@ export default function ChatPage() {
     const tempId = generateUUID();
     const now = new Date().toISOString();
 
-    // A. 낙관적 업데이트
     const userMsg: Message = {
       id: tempId,
       role: 'user',
@@ -92,10 +93,10 @@ export default function ChatPage() {
       user_id: user.id,
       created_at: now,
     };
+    
     setMessages((prev) => [...prev, userMsg]);
 
     try {
-      // B. DB 저장 (User)
       const { error: insertError } = await supabase
         .from('messages')
         .insert([{
@@ -104,21 +105,19 @@ export default function ChatPage() {
           user_id: user.id,
         }]);
       
-      if (insertError) throw new Error('Message save failed');
+      if (insertError) throw new Error('DB Save Failed');
 
-      // C. API 호출
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: currentText, history: messages }),
       });
 
-      if (!response.ok) throw new Error('AI response failed');
+      if (!response.ok) throw new Error('API Failed');
       
       const data = await response.json();
       const aiContent = data.reply;
 
-      // D. UI 업데이트 및 DB 저장 (AI)
       const aiMsg: Message = {
         id: generateUUID(),
         role: 'assistant',
@@ -136,8 +135,9 @@ export default function ChatPage() {
       }]);
 
     } catch (error) {
-      console.error('Send error:', error);
-      alert('오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('Send Error:', error);
+      // alert는 빌드 에러를 유발하지 않음
+      alert('전송 중 오류가 발생했습니다.');
       setMessages((prev) => prev.filter(msg => msg.id !== tempId));
       setInputText(currentText);
     } finally {
