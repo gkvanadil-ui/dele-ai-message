@@ -5,8 +5,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Chat App',
-  description: 'Supabase Chat Application',
+  title: 'My Chat App',
+  description: 'Built with Next.js and Supabase',
 };
 
 export default function RootLayout({
