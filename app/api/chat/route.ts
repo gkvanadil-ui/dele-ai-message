@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-// Cloudflare Pages를 위한 Edge Runtime 설정 (필수)
+// Cloudflare Pages Edge Runtime 설정 (필수)
 export const runtime = 'edge';
 
 export async function POST(request: Request) {
@@ -8,8 +8,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { message } = body;
 
-    // [TODO] AI 로직 연결
-    const reply = `AI 응답 (Edge): "${message}"`;
+    // [TODO] 실제 AI 로직 연결
+    const reply = `AI 응답: "${message}" (Edge Runtime)`;
 
     return NextResponse.json({ reply });
   } catch (error) {
