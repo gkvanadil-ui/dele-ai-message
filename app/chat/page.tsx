@@ -5,9 +5,8 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '../utils/supabase';
 import type { Message } from '../types';
 
-// 빌드/서버/클라이언트 모든 환경에서 안전한 UUID 생성기
+// UUID 생성 폴백 (브라우저/서버 호환성 확보)
 const generateUUID = () => {
-  // 1. 브라우저 환경이고 crypto.randomUUID가 있는 경우
   if (
     typeof window !== 'undefined' &&
     typeof window.crypto !== 'undefined' &&
@@ -15,8 +14,6 @@ const generateUUID = () => {
   ) {
     return window.crypto.randomUUID();
   }
-  
-  // 2. 서버(Node) 또는 구형 브라우저 폴백 (Math.random 기반)
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
@@ -27,18 +24,17 @@ const generateUUID = () => {
 export default function ChatPage() {
   const router = useRouter();
   
+  // 상태 관리 (중복 선언 제거됨)
   const [user, setUser] = useState<any>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  
-  // 상단 메뉴 드롭다운 등 UI 상태
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 1. 초기화 로직
+  // 1. 초기화 및 세션 체크
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -57,9 +53,7 @@ export default function ChatPage() {
           .eq('user_id', user.id)
           .order('created_at', { ascending: true });
 
-        if (msgError) {
-          console.error('메시지 로드 실패:', msgError);
-        }
+        if (msgError) throw msgError;
 
         setMessages(msgData || []);
 
@@ -73,14 +67,12 @@ export default function ChatPage() {
     initialize();
   }, [router]);
 
-  // 2. 스크롤 처리
+  // 2. 스크롤 자동 이동
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isSending]);
 
-  // 3. 메시지 전송
+  // 3. 메시지 전송 로직 (중복 제거 및 순차 처리)
   const handleSendMessage = async () => {
     if (!inputText.trim() || isSending || !user) return;
 
@@ -91,7 +83,7 @@ export default function ChatPage() {
     const tempId = generateUUID();
     const now = new Date().toISOString();
 
-    // 낙관적 UI 업데이트
+    // A. 사용자 메시지 - 낙관적 업데이트
     const userMsg: Message = {
       id: tempId,
       role: 'user',
@@ -99,33 +91,33 @@ export default function ChatPage() {
       user_id: user.id,
       created_at: now,
     };
-
     setMessages((prev) => [...prev, userMsg]);
 
     try {
-      // 사용자 메시지 저장
-      await supabase.from('messages').insert([{
-        role: 'user',
-        content: currentText,
-        user_id: user.id,
-        // id는 DB 자동 생성이 기본이지만 필요시 지정 가능
-      }]);
+      // B. 사용자 메시지 DB 저장
+      const { error: insertError } = await supabase
+        .from('messages')
+        .insert([{
+          role: 'user',
+          content: currentText,
+          user_id: user.id,
+        }]);
+      
+      if (insertError) throw new Error('메시지 저장 실패');
 
-      // API 호출
+      // C. AI API 호출
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: currentText, history: messages }),
       });
 
-      let aiContent = '죄송합니다. 오류가 발생했습니다.';
+      if (!response.ok) throw new Error('AI 응답 실패');
+      
+      const data = await response.json();
+      const aiContent = data.reply;
 
-      if (response.ok) {
-        const data = await response.json();
-        aiContent = data.reply;
-      }
-
-      // AI 메시지 생성 및 저장
+      // D. AI 메시지 - UI 업데이트 및 DB 저장
       const aiMsg: Message = {
         id: generateUUID(),
         role: 'assistant',
@@ -133,7 +125,7 @@ export default function ChatPage() {
         user_id: user.id,
         created_at: new Date().toISOString(),
       };
-
+      
       setMessages((prev) => [...prev, aiMsg]);
 
       await supabase.from('messages').insert([{
@@ -143,8 +135,11 @@ export default function ChatPage() {
       }]);
 
     } catch (error) {
-      console.error('전송 중 오류:', error);
-      // 에러 상황 UI 처리 (여기선 간단히 유지)
+      console.error('전송 실패:', error);
+      alert('메시지 전송 중 오류가 발생했습니다.');
+      // 실패 시 롤백 (선택적)
+      setMessages((prev) => prev.filter(msg => msg.id !== tempId));
+      setInputText(currentText);
     } finally {
       setIsSending(false);
     }
@@ -169,7 +164,7 @@ export default function ChatPage() {
         <div className="relative">
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
+            className="p-2 text-gray-500 hover:bg-gray-100 rounded-full focus:outline-none"
           >
             {/* 점 3개 아이콘 */}
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -185,7 +180,7 @@ export default function ChatPage() {
                   await supabase.auth.signOut();
                   router.push('/');
                 }}
-                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 rounded-lg"
+                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 rounded-lg transition-colors"
               >
                 로그아웃
               </button>
